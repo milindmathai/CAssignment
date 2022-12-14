@@ -6,6 +6,8 @@
 #include <sstream>
 #include <algorithm>
 #include <limits> 
+
+
 using namespace std;
 
 class Vehicle
@@ -30,10 +32,7 @@ class Vehicle
     virtual int returnEngine() const = 0;
     virtual int returnWheels() const = 0;
      
-    // bool operator<(const Vehicle& p) const
-    // {
-    //     return returnRegistrationNumber() < p.returnRegistrationNumber(); // order by name
-    // }
+    
     
    
 };
@@ -112,6 +111,7 @@ class VehicleHistory
     int TotalRecords = 0;
     int index = 1;
     vector <HistoryRecord*> HistoricalRecordVector;
+    string RegistrationNumber;
     public:
     void AddRecord(double CostPerDay){
         string fromDate, toDate;
@@ -146,9 +146,13 @@ class VehicleHistory
     void printHistory(string header){
         int userInput = 0;
         
+        if(TotalDaysRented == 0){
+            cout << "No rental records, returning to vehicle information screen!" << endl;
+
+            return;
+        }
         while(userInput != 9){
 
-            cout << index;
             cout << "\n" <<header;
             cout << "----------------- \n";
             
@@ -198,6 +202,7 @@ class VehicleHistory
     VehicleHistory(string registrationNumber){
         ifstream History;
         History.open("./History/"+registrationNumber+".csv");
+        RegistrationNumber = registrationNumber;
         if(History.fail()){
             cerr << "No history found for this file" << endl;
                 throw;
@@ -224,7 +229,7 @@ class VehicleHistory
 
     }    
 
-    // friend ostream& operator<<(ostream& os, const VehicleHistory& dt);
+    friend ostream& operator>>(ostream& os, const VehicleHistory& dt);
 
 };
 
@@ -375,6 +380,8 @@ class AllVehicles
         VehicleHistory vehicleDetails(VehicleVector[index]->returnRegistrationNumber());
         vehicleDetails.printOverview(VehicleVector[index]->CostPerDay());
         while(userInput !=9){
+            vehicleDetails.printOverview(VehicleVector[index]->CostPerDay());
+
             cout << "\n1) Rent Vehicle \n2) View historical rentals\n9) Return to main menu \n\nPlease choose an option: "; 
         
             while(!(cin >> userInput)){
@@ -398,7 +405,7 @@ class AllVehicles
             }
 
         }
-        // cout << vehicleDetails;
+        cout >> vehicleDetails;
         
         
     }
@@ -655,18 +662,18 @@ ostream& operator<<(ostream& os, const AllVehicles& dt)
     return os;
 }
 
-// ostream& operator<<(ostream& os, const VehicleHistory& dt)
-// {
-//     ofstream myfile;
-//     myfile.open ("sample1.csv");
+ostream& operator>>(ostream& os, const VehicleHistory& dt)
+{
+    ofstream myfile;
+    myfile.open ("./History/"+ dt.RegistrationNumber+".csv");
     
-//     for (auto* a : dt.HistoricalRecordVector){ 
-//         myfile << a->DateStart()<< ","<< a->DateEnd()<< ","<< a->NumberOfDays()<< ","<< a->Cost() << ","<< a->Name() << ","<<a->Address() << ","<< a->PhoneNumber()  << endl; 
-//     }
-//     myfile.close();
+    for (auto* a : dt.HistoricalRecordVector){ 
+        myfile << a->DateStart << ","<< a->DateEnd<< ","<< a->NumberOfDays<< ","<< a->Cost << ","<< a->Name << ","<<a->Address << ","<< a->PhoneNumber  << endl; 
+    }
+    myfile.close();
 
-//     return os;
-// }
+    return os;
+}
 
 int main(){
     AllVehicles lista;
